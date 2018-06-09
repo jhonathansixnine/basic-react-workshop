@@ -1,4 +1,5 @@
 import React from 'react';
+import Item from './Item';
 
 class Todo extends React.Component {
   state = {
@@ -30,6 +31,13 @@ class Todo extends React.Component {
            className="form-control"
           />
         </form>
+
+        <ul>
+
+          {this.state.list.map((element, index) => {
+            return <Item item={element} key={index} index={index}/>
+          })}
+        </ul>
       </div>
       )
   }
