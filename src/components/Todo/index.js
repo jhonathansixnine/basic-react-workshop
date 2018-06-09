@@ -1,65 +1,86 @@
-import React from 'react';
-import Item from './Item';
+import React from 'react'
+import Item from './Item'
+import { AppContext } from '../../AppContext';
 
 class Todo extends React.Component {
   state = {
-    list: [],
-    item: '',
-    mundo: 'Estado de noelillo'
-  };
+    todoList: [],
+    newItem: ''
+  }
 
-  onSubmit = (ev) => {
-    ev.preventDefault();
-    this.setState({
-      list: [...this.state.list,
-        {
-          text: this.state.item,
-          done: false
-        }
-      ],
-      item: ''
-    }, () => {
-      console.log(this.state.list)
+  onSubmit = (event) => {
+    event.preventDefault();
+    if (this.state.newItem) {
+      this.setState({ 
+        todoList: [
+          ...this.state.todoList,
+          { text: this.state.newItem, done: false }
+        ],
+        newItem: ''
+      });
+      this.myInput.focus();
+    }
+  }
+
+  onChange = (event) => {
+    this.setState({ newItem: event.target.value });
+  }
+
+  handleInputChange = (index) =>  {
+    let todoList = this.state.todoList;
+    this.setState(() => {
+      todoList[index] = { ...todoList[index], done: !todoList[index].done }
+      return { todoList: todoList }
     })
   }
 
-  handleInputChange = (index) => {
-    let todoList = this.state.list;
-    this.setState( () => {
-      todoList[index] = {...todoList[index], done: !todoList[index].done }
-      return { list: todoList }
-    }, () => { console.log(this.state.list) })
+  countUndone = () => {
+    return this.state.todoList.reduce((a, b) => {
+      if (!b.done)
+        return a + 1
+      else 
+        return a;
+      }, 0)
   }
 
-  countUndone = () => {
-    return this.state.list.reduce((counter, item) => {
-      if (!item.done) return counter + 1
-      else return counter
-    }, 0)
+  itemsList = (item, index) => {
+    return <Item item={item} index={index} key={index} handleInputChange={this.handleInputChange} /> 
   }
 
   render() {
+    const todoList = this.state.todoList.map(this.itemsList);
+    
     return (
-      <div>
-        <h1>Lista de cosas por hacer</h1>
-        <h3>tareas por hacer: {this.countUndone()}</h3>
-        <form className="todo-form input-group" action="" onSubmit={this.onSubmit}>
+      <div className="">
+        {/* <button onClick={this.props.history.goBack}>&lt; Regresar</button>
+        <AppContext.Consumer>
+            {(context) => (
+              <div>
+                <span>{context.number}</span>
+                <button onClick={context.inc}>INC</button>
+              </div>
+            )}
+        </AppContext.Consumer> */}
+        <h2>Mi lista de cosas por hacer</h2>
+        <span>Tareas por hacer: </span><b>{this.countUndone()}</b>
+        <form className="todo-form input-group" onSubmit={this.onSubmit}>
           <input
-           type="text"
-           value={this.state.item}
-           onChange={(ev) => { this.setState({ item: ev.target.value }) }}
-           className="form-control"
+            className="input-group-prepend"
+            value={this.state.newItem}
+            onChange={this.onChange}
+            ref={(input) => { this.myInput = input; }}
           />
+          <button className="btn btn-success">Submit</button>
         </form>
-
-        <ul>
-
-          {this.state.list.map((element, index) => {
-            return <Item item={element} key={index} index={index} handleInputChange={this.handleInputChange}/>
-          })}
-        </ul>
+        <div className="row mt-3">
+          <div className="col-sm-3">
+            <ul className="list-group">
+              {todoList}
+            </ul>
+          </div>
+        </div>
       </div>
-      )
+    )
   }
 }
 
